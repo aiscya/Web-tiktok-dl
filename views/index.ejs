@@ -1,0 +1,253 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Video Downloader</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
+    <style>
+      .menu {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease-in-out;
+      }
+      .menu.show {
+        transform: translateX(0);
+      }
+      .light-mode {
+        background-color: #f0f0f0;
+        color: #333;
+      }
+      .light-mode .bg-gray-900 {
+        background-color: #fff;
+        color: #333;
+      }
+      .light-mode .bg-gray-700 {
+        background-color: #e0e0e0;
+        color: #333;
+      }
+      .light-mode .text-white {
+        color: #333;
+      }
+      .light-mode .text-black {
+        color: #fff;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-800 text-white" onclick="closeMenu(event)">
+    <div class="container mx-auto p-4">
+      <header class="bg-gray-900 p-4 flex justify-between items-center">
+        <i
+          class="fas fa-bars text-xl cursor-pointer"
+          onclick="toggleMenu(event)"
+        ></i>
+        <h1 class="text-xl">Video Downloader</h1>
+        <i class="fas fa-user-circle text-xl"></i>
+      </header>
+      <nav
+        class="menu bg-gray-900 p-4 rounded mt-2 fixed top-0 left-0 h-full w-64 z-50"
+        onclick="event.stopPropagation()"
+      >
+        <div class="flex justify-between items-center mb-4 w-full px-4">
+          <img
+            src="https://storage.googleapis.com/a1aa/image/NEwvN3Cu6VfdBIOJrKIkMwsMl554AonGNFTJuRmCURI.jpg"
+            alt="Logo"
+            class="w-10 h-10"
+          />
+          <h2
+            class="text-xl text-center text-white items-center justify-center font-bold"
+          >
+            My Apps
+          </h2>
+          <i
+            class="fas fa-times text-xl cursor-pointer"
+            onclick="toggleMenu(event)"
+          ></i>
+        </div>
+        <div class="mb-4 text-center">
+          <img
+            alt="Logo"
+            class="w-24 h-24 mx-auto"
+            src="https://storage.googleapis.com/a1aa/image/NEwvN3Cu6VfdBIOJrKIkMwsMl554AonGNFTJuRmCURI.jpg"
+          />
+        </div>
+        <ul class="text-center">
+          <li class="mb-2"><a href="#" class="text-white">Home</a></li>
+          <li class="mb-2"><a href="#" class="text-white">Youtube</a></li>
+          <li class="mb-2"><a href="#" class="text-white">Twitter</a></li>
+          <li class="mb-2">
+            <a href="#" class="text-white">❤ Support me ❤</a>
+          </li>
+          <li class="mb-2">
+            <button
+              onclick="toggleTheme()"
+              class="text-white bg-gray-700 p-2 rounded flex items-center justify-center mx-auto"
+            >
+              <i class="fas fa-moon mr-2"></i>
+              <span id="theme-text">Dark Mode</span>
+            </button>
+          </li>
+        </ul>
+      </nav>
+      <main class="p-4">
+        <% if (!result) { %>
+        <div class="flex flex-col items-center">
+          <form
+            action="/process"
+            method="post"
+            class="w-full max-w-md mb-4"
+            onsubmit="showLoading(event)"
+          >
+            <div class="relative w-full mb-4">
+              <input
+                class="w-full p-2 bg-gray-200 text-gray-700 rounded"
+                placeholder="Paste your link"
+                type="text"
+                name="url"
+                required
+              />
+              <i
+                class="fas fa-clipboard absolute right-3 top-3 text-gray-500"
+              ></i>
+            </div>
+            <button
+              type="submit"
+              class="w-full p-2 bg-gray-900 text-white rounded flex items-center justify-center"
+              id="process-button"
+            >
+              <span id="button-text">Process</span>
+              <span id="loading-text" class="hidden ml-2"
+                >Loading... <span id="loading-percentage">0%</span></span
+              >
+            </button>
+          </form>
+          <div class="download-count text-center mt-4 font-bold">
+            Total downloads processed: <%= downloadCount %>
+          </div>
+        </div>
+        <% } %> <% if (result) { %>
+        <div class="mt-8">
+          <h2 class="text-lg">Download Result</h2>
+          <% if (result.video) { %>
+          <video controls class="w-full mt-4">
+            <source src="<%= result.video %>" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+          <% } else { %>
+          <p>Video not available.</p>
+          <% } %> <% if (result.audio) { %>
+          <audio controls class="w-full mt-4">
+            <source src="<%= result.audio %>" type="audio/mpeg" />
+            Your browser does not support the audio tag.
+          </audio>
+          <% } else { %>
+          <p>Audio not available.</p>
+          <% } %>
+          <div class="flex space-x-4 mt-4">
+            <a
+              href="<%= result.video %>"
+              download
+              class="p-2 bg-blue-500 text-white rounded"
+              >Download Video</a
+            >
+            <a
+              href="<%= result.audio %>"
+              download
+              class="p-2 bg-green-500 text-white rounded"
+              >Download Audio</a
+            >
+          </div>
+          <button
+            onclick="window.location.href='/'"
+            class="mt-4 p-2 bg-gray-900 text-white rounded"
+          >
+            Download Another Video
+          </button>
+          <div class="mt-4">
+            <h3 class="font-bold">Deskripsi</h3>
+            <p>Title: <%= result.title %></p>
+            <p>Size: <%= result.size %></p>
+            <p>Duration: <%= result.duration %> seconds</p>
+          </div>
+        </div>
+        <% } %>
+        <div class="mt-8">
+          <h2 class="text-lg">Download History</h2>
+          <ul class="space-y-4">
+            <% downloads.slice().reverse().forEach(download => { %>
+            <li class="bg-gray-700 p-4 rounded">
+              <a href="<%= download.url %>" class="text-blue-400"
+                ><%= download.title %></a
+              >
+              <p>Downloaded <%= download.downloads %> time(s)</p>
+              <p><%= getTimeElapsed(download.timestamp) %></p>
+              <button
+                onclick="reprocess('<%= download.url %>')"
+                class="mt-2 p-2 bg-gray-900 text-white rounded"
+              >
+                Reprocess
+              </button>
+            </li>
+            <% }) %>
+          </ul>
+        </div>
+      </main>
+    </div>
+    <script>
+      function toggleMenu(event) {
+        event.stopPropagation();
+        document.querySelector(".menu").classList.toggle("show");
+      }
+
+      function closeMenu(event) {
+        if (
+          !event.target.closest(".menu") &&
+          document.querySelector(".menu").classList.contains("show")
+        ) {
+          document.querySelector(".menu").classList.remove("show");
+        }
+      }
+
+      function reprocess(url) {
+        document.querySelector('input[name="url"]').value = url;
+        document.querySelector("form").submit();
+      }
+
+      function toggleTheme() {
+        document.body.classList.toggle("bg-gray-800");
+        document.body.classList.toggle("bg-white");
+        document.body.classList.toggle("text-white");
+        document.body.classList.toggle("text-black");
+        document.body.classList.toggle("light-mode");
+        const themeText = document.getElementById("theme-text");
+        if (themeText.innerText === "Dark Mode") {
+          themeText.innerText = "Light Mode";
+        } else {
+          themeText.innerText = "Dark Mode";
+        }
+      }
+
+      function showLoading(event) {
+        event.preventDefault();
+        const buttonText = document.getElementById("button-text");
+        const loadingText = document.getElementById("loading-text");
+        const loadingPercentage = document.getElementById("loading-percentage");
+        const processButton = document.getElementById("process-button");
+        buttonText.classList.add("hidden");
+        loadingText.classList.remove("hidden");
+        let progress = 0;
+        const interval = setInterval(() => {
+          progress += 10;
+          loadingPercentage.innerText = progress + "%";
+          if (progress >= 100) {
+            clearInterval(interval);
+            processButton.classList.add("bg-green-500");
+            document.querySelector("form").submit();
+          }
+        }, 100);
+      }
+    </script>
+  </body>
+</html>
